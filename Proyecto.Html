@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Depreciación de Bienes</title>
+</head>
+<body>
+ <h1>Registro de Depreciación de Bienes</h1>
+ <form id="registro-form">
+ <fieldset>
+ <legend>Registro de Bienes</legend>
+ <label for="fecha-adquisicion">Fecha de Adquisición:</label>
+ <input type="date" id="fecha-adquisicion" name="fecha-adquisicion" required>
+ <label for="valor-adquisicion">Valor de Adquisición (BS):</label>
+ <input type="number" id="valor-adquisicion" name="valor-adquisicion" step="0.01" required>
+ <label for="vida-util">Vida Útil (Meses):</label>
+ <input type="number" id="vida-util" name="vida-util" step="1" required>
+ <label for="cuenta-contable">Cuenta Contable:</label>
+ <input type="text" id="cuenta-contable" name="cuenta-contable" required>
+ <label for="cuenta-depreciacion">Cuenta de Depreciación Acumulada:</label>
+ <input type="text" id="cuenta-depreciacion" name="cuenta-depreciacion" required>
+ <label for="marca">Marca:</label>
+ <input type="text" id="marca" name="marca" required>
+ <label for="modelo">Modelo:</label>
+ <input type="text" id="modelo" name="modelo" required>
+ <label for="serial">Serial:</label>
+ <input type="text" id="serial" name="serial" required>
+ </fieldset>
+ <button type="submit">Registrar Bien</button>
+ </form>
+ <div id="resultado"></div>
+ <div id="resumen"></div>
+ <script>
+ const registroForm = document.getElementById("registro-form");
+ const resultado = document.getElementById("resultado");
+ const resumen = document.getElementById("resumen");
+ const meses = [
+ "Enero",
+ "Febrero",
+ "Marzo",
+ "Abril",
+ "Mayo",
+ "Junio",
+ "Julio",
+ "Agosto",
+ "Septiembre",
+ "Octubre",
+ "Noviembre",
+ "Diciembre",
+ ];
+
+ registroForm.addEventListener("submit", (e) => {
+ e.preventDefault();
+ const fechaAdquisicion = new Date(registroForm["fecha-adquisicion"].value);
+ const valorAdquisicion = parseFloat(registroForm["valor-adquisicion"].value);
+ const vidaUtil = parseInt(registroForm["vida-util"].value);
+ const cuentaContable = registroForm["cuenta-contable"].value;
+ const cuentaDepreciacion = registroForm["cuenta-depreciacion"].value;
+ const marca = registroForm["marca"].value;
+ const modelo = registroForm["modelo"].value;
+ const serial = registroForm["serial"].value;
+
+ let depreciacionMensual = (valorAdquisicion / vidaUtil) * 12;
+ let depreciacionAcumulada = 0;
+ let valorSegunLibro = valorAdquisicion;
+ let fechaActual = new Date();
+ let mesesDepreciados = 0;
+ let tabla = "";
+
+ while (valorSegunLibro > 0 && fechaActual >= fechaAdquisicion) {
+ let depreciacionTrimestral = depreciacionMensual * 3;
+ depreciacionAcumulada += depreciacionTrimestral;
+ valorSegunLibro = valorAdquisicion - depreciacionAcumulada;
+ mesesDepreciados += 3;
+
+ tabla += `<tr>
+ <td>${fechaActual.getFullYear()}-${fechaActual.getMonth() + 1}</td>
+ <td>${depreciacionTrimestral.toFixed(2)}</td>
+ <td>${valorSegunLibro.toFixed(2)}</td>
+ </tr>`;
+
+ fechaActual.setMonth(fechaActual.getMonth() + 3);
+ }
+
+ if (valorSegunLibro <= 0) {
+ tabla += `<tr>
+ <td colspan="3">Este activo se encuentra totalmente depreciado.</td>
+ </tr>`;
+ }
+
+ resultado.innerHTML = `
+ <table>
+ <thead>
+ <tr>
+ <th>Mes</th>
+ <th>Depreciación Trimestral</th>
+ <th>Valor Según Libro</th>
+ </tr>
+ </thead>
+ <tbody>
+ ${tabla}
+ </tbody>
+ </table>
+ `;
+
+ resumen.innerHTML = `
+ <h2>Resumen de Cuentas de Depreciación</h2>
+ <table>
+ <thead>
+ <tr>
+ <th>Cuenta Contable</th>
+ <th>Depreciación Acumulada</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>${cuentaContable}</td>
+ <td>${depreciacionAcumulada.toFixed(2)}</td>
+ </tr>
+ <tr>
+ <td>${cuentaDepreciacion}</td>
+ <td>(${depreciacionAcumulada.toFixed(2)})</td>
+ </tr>
+ </tbody>
+ </table>
+ `;
+ });
+ </script>
+</body>
+</html>
